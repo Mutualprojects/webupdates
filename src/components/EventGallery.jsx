@@ -9,6 +9,9 @@ import {
   Users2,
   HeartHandshake,
   Building2,
+  Flag,
+  Briefcase,
+  Stethoscope,
 } from "lucide-react";
 
 /* =========================
@@ -16,67 +19,79 @@ import {
 ========================= */
 const BRAND = "#07518a";
 const GRADIENT = "linear-gradient(135deg, #07518a 0%, #0a6ab8 100%)";
-const IK_BASE = "https://ik.imagekit.io/waxuvuasch";
+const IK_BASE = "https://ik.imagekit.io/waxuvuasch/Eventimages";
 
 /* =========================
    EVENTS DATA
 ========================= */
 const EVENTS = [
   {
-    title: "Awards 2025",
+    title: "Independence Day Celebrations",
+    icon: Flag,
+    description:
+      "A proud moment celebrating the spirit of freedom and patriotism. The Brihaspathi family united to honor our nation through flag hoisting, cultural events, and heartfelt tributes.",
+    images: [
+      `${IK_BASE}/Independencday%20Celebrations/1.jpeg?updatedAt=1760763591377`,
+      `${IK_BASE}/Independencday%20Celebrations/2.jpeg?updatedAt=1760763591377`,
+      `${IK_BASE}/Independencday%20Celebrations/3.jpeg?updatedAt=1760763591377`,
+    ],
+  },
+  {
+    title: "Conference Room Group Photos",
+    icon: Briefcase,
+    description:
+      "Moments from our internal meetings and brainstorming sessions — where ideas come alive, teams collaborate, and innovation takes shape at Brihaspathi Technologies.",
+    images: [
+      `${IK_BASE}/Conference%20room%20Group%20photos/WhatsApp%20Image%202025-09-16%20at%2014.43.05.jpeg?updatedAt=1760763569362`,
+      `${IK_BASE}/Conference%20room%20Group%20photos/WhatsApp%20Image%202025-09-16%20at%2014.43.04.jpeg?updatedAt=1760763569105`,
+    ],
+  },
+  {
+    title: "Vinayaka Chaturthi Celebrations 2025",
     icon: Award,
     description:
-      "Brihaspathi Technologies celebrated Awards 2025 by honoring teams and partners for innovation and excellence. A proud moment showcasing our leadership in AI-driven surveillance and digital transformation.",
+      "Brihaspathi Technologies celebrated Ganesh Chaturthi with devotion and joy — a day filled with prayers, decorations, and festive togetherness.",
     images: [
-      `${IK_BASE}/Eventimages/Awards2025/1.jpg`,
-      `${IK_BASE}/Eventimages/Awards2025/2.jpg`,
-      `${IK_BASE}/Eventimages/Awards2025/3.jpg`,
+      `${IK_BASE}/Vinayaka%20Chaturthi%20Celebrations%20-%202025/1.jpeg?updatedAt=1760763569000`,
+      `${IK_BASE}/Vinayaka%20Chaturthi%20Celebrations%20-%202025/2.jpeg?updatedAt=1760763569000`,
+      `${IK_BASE}/Vinayaka%20Chaturthi%20Celebrations%20-%202025/3.jpeg?updatedAt=1760763569000`,
     ],
   },
   {
-    title: "Credai Expo 2025",
-    icon: Building2,
+    title: "Health Campaign",
+    icon: Stethoscope,
     description:
-      "At Credai Expo 2025, Brihaspathi Technologies showcased smart city and AI-powered security innovations, redefining safety and technology solutions across industries.",
+      "Promoting wellness through our Health Campaign — encouraging fitness, preventive care, and healthy habits among all Brihaspathians.",
     images: [
-      `${IK_BASE}/Eventimages/EXPO/Credai Expo/1.jpg`,
-      `${IK_BASE}/Eventimages/EXPO/Credai Expo/2.jpg`,
-      `${IK_BASE}/Eventimages/EXPO/Credai Expo/3.jpg`,
-      `${IK_BASE}/Eventimages/EXPO/Credai Expo/4.jpg`,
+      `${IK_BASE}/Health%20Campign/1.jpg?updatedAt=1760763590748`,
+      `${IK_BASE}/Health%20Campign/2.jpg?updatedAt=1760763590748`,
+      `${IK_BASE}/Health%20Campign/3.jpg?updatedAt=1760763590748`,
+      `${IK_BASE}/Health%20Campign/4.jpg?updatedAt=1760763590748`,
     ],
   },
   {
-    title: "Father’s Day Celebration",
+    title: "Mother’s Day Celebration",
     icon: HeartHandshake,
     description:
-      "Celebrating the strength and guidance of all fathers at Brihaspathi Technologies — a day of gratitude, laughter, and appreciation that united our entire BTL family.",
+      "Honoring the unconditional love and strength of mothers — Brihaspathi celebrated Mother’s Day with heartfelt moments, gratitude, and appreciation.",
     images: [
-      `${IK_BASE}/Eventimages/Father's Day/1.jpeg`,
-      `${IK_BASE}/Eventimages/Father's Day/2.jpeg`,
-      `${IK_BASE}/Eventimages/Father's Day/3.jpeg`,
+      `${IK_BASE}/Mother's%20day%20Celebration/1.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Mother's%20day%20Celebration/2.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Mother's%20day%20Celebration/3.jpeg?updatedAt=1760763568788`,
     ],
   },
   {
     title: "Tree Plantation Drive",
     icon: TreePine,
     description:
-      "Aligned with our sustainability mission, Brihaspathi Technologies organized a massive tree plantation drive promoting green growth and eco-responsibility across communities.",
+      "Aligned with our sustainability vision, Brihaspathi Technologies organized a tree plantation drive to foster a greener, cleaner future.",
     images: [
-      `${IK_BASE}/Eventimages/Tree plantation Drive/1.JPG`,
-      `${IK_BASE}/Eventimages/Tree plantation Drive/2.JPG`,
-      `${IK_BASE}/Eventimages/Tree plantation Drive/3.JPG`,
-      `${IK_BASE}/Eventimages/Tree plantation Drive/4.JPG`,
-    ],
-  },
-  {
-    title: "Women's Day Celebration",
-    icon: Users2,
-    description:
-      "Brihaspathi Technologies celebrated Women's Day 2025, honoring the women leaders and innovators who inspire progress, diversity, and empowerment in technology.",
-    images: [
-      `${IK_BASE}/Eventimages/womens day/1.jpeg`,
-      `${IK_BASE}/Eventimages/womens day/2.jpeg`,
-      `${IK_BASE}/Eventimages/womens day/3.jpeg`,
+      `${IK_BASE}/Tree%20plantation%20Drive/1.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Tree%20plantation%20Drive/2.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Tree%20plantation%20Drive/3.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Tree%20plantation%20Drive/4.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Tree%20plantation%20Drive/5.jpeg?updatedAt=1760763568788`,
+      `${IK_BASE}/Tree%20plantation%20Drive/6.jpeg?updatedAt=1760763568788`,
     ],
   },
 ];
@@ -94,7 +109,7 @@ const fadeUp = {
 ========================= */
 export default function EventGallery() {
   const [selected, setSelected] = useState(EVENTS[0]);
-  const [visible, setVisible] = useState(false); // manual preview control
+  const [visible, setVisible] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#f8f9fb] font-sans">
@@ -167,7 +182,7 @@ export default function EventGallery() {
           </div>
         </aside>
 
-        {/* ==== EVENTS DISPLAY ==== */}
+        {/* ==== EVENT DISPLAY ==== */}
         <main className="flex-1">
           <AnimatePresence mode="wait">
             <motion.div
@@ -196,7 +211,7 @@ export default function EventGallery() {
                     {selected.description}
                   </p>
 
-                  {/* === MANUAL GALLERY BUTTON === */}
+                  {/* === GALLERY BUTTON === */}
                   <Button
                     type="primary"
                     style={{
@@ -210,7 +225,7 @@ export default function EventGallery() {
                     View Full Gallery
                   </Button>
 
-                  {/* === IMAGES + PREVIEW GROUP (NO CROPPING) === */}
+                  {/* === IMAGE GALLERY === */}
                   <Image.PreviewGroup
                     preview={{
                       visible,
@@ -232,19 +247,16 @@ export default function EventGallery() {
                             }}
                           >
                             <Image
-                              // Use ImageKit params only for quality; keep real size (no forced width/height)
-                              src={`${img}?tr=q-85`}
+                              src={`${img}&tr=q-85`}
                               alt={`${selected.title}-${idx + 1}`}
-                              // FULL WIDTH + NATURAL HEIGHT
                               width="100%"
-                              // height not set → auto
                               style={{
                                 display: "block",
                                 width: "100%",
                                 height: "auto",
-                                objectFit: "contain", // ensures no cropping
+                                objectFit: "contain",
                                 borderRadius: 10,
-                                background: "#f8fafc", // subtle backdrop behind transparent areas
+                                background: "#f8fafc",
                               }}
                               preview={{
                                 mask: (
