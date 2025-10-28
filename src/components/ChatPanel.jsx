@@ -178,8 +178,8 @@ export default function ChatPanel() {
         className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-full text-white font-semibold shadow-lg"
         style={{ background: BRAND }}
       >
-        <Bot className="w-6 h-6" />
-        <span className="hidden sm:block">Chat</span>
+        <Bot className="w-6 h-6 text-white" />
+        <span className="hidden sm:block text-white">Brihaspathi Assist</span>
       </motion.button>
 
       {/* Chat Modal */}
