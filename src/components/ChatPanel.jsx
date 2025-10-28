@@ -1,17 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Bot, Send, Loader2, X } from "lucide-react";
+import { User, Bot, Send, Loader2, X, Globe } from "lucide-react";
 
-// ========= BRAND COLORS =========
 const BRAND = "#07518a";
 const BRAND_DARK = "#053a66";
 
-// ========= API ENDPOINTS =========
-const CHAT_API = import.meta.env.VITE_CHAT_API || "http://localhost:8787";
-const APP_API = import.meta.env.VITE_APP_API || "http://localhost:8788";
+// === API base ===
+const CHAT_API = "https://chatbot-1-jwv1.onrender.com";
 
-// ========= ANIMATIONS =========
+// === Animations ===
 const fadeVariant = {
   initial: { opacity: 0 },
   animate: { opacity: 1 },
@@ -34,7 +32,7 @@ const messageVariant = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
-// ========= HELPERS =========
+// === Safe HTML ===
 const safeHtml = (text) =>
   text
     .replace(/&/g, "&amp;")
@@ -46,49 +44,38 @@ const safeHtml = (text) =>
       `<a href="$1" target="_blank" rel="noopener noreferrer" class="underline hover:no-underline" style="color:#60a5fa">$1</a>`
     );
 
-// ========= TYPE REVEAL =========
+// === Typing Animation ===
 function TypeReveal({ text, speed = 15 }) {
-  const [displayedText, setDisplayedText] = useState("");
-
+  const [displayed, setDisplayed] = useState("");
   useEffect(() => {
-    setDisplayedText("");
+    setDisplayed("");
     let i = 0;
     const timer = setInterval(() => {
-      if (i < text.length) {
-        setDisplayedText(text.slice(0, i + 1));
-        i++;
-      } else clearInterval(timer);
+      if (i < text.length) setDisplayed(text.slice(0, ++i));
+      else clearInterval(timer);
     }, speed);
     return () => clearInterval(timer);
-  }, [text, speed]);
-
-  return <span dangerouslySetInnerHTML={{ __html: safeHtml(displayedText) }} />;
+  }, [text]);
+  return <span dangerouslySetInnerHTML={{ __html: safeHtml(displayed) }} />;
 }
 
-// ========= TYPING INDICATOR =========
+// === Typing Indicator ===
 function TypingIndicator() {
   return (
     <div className="flex items-center space-x-1">
-      <div className="flex space-x-1">
+      {[0, 150, 300].map((d, i) => (
         <div
+          key={i}
           className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
-          style={{ animationDelay: "0ms" }}
+          style={{ animationDelay: `${d}ms` }}
         />
-        <div
-          className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
-          style={{ animationDelay: "150ms" }}
-        />
-        <div
-          className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"
-          style={{ animationDelay: "300ms" }}
-        />
-      </div>
+      ))}
       <span className="text-slate-400 text-sm ml-2">AI is typing...</span>
     </div>
   );
 }
 
-// ========= MAIN CHAT PANEL =========
+// === Main Component ===
 export default function ChatPanel() {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
@@ -96,42 +83,36 @@ export default function ChatPanel() {
   const [typing, setTyping] = useState(false);
   const [sessionId, setSessionId] = useState("");
   const [open, setOpen] = useState(false);
-  const [activeForm, setActiveForm] = useState(null);
-
-  // product & service forms
-  const [productForm, setProductForm] = useState({
-    name: "",
-    email: "",
-    address: "",
-    phone: "",
-    productName: "",
-    quantity: 1,
-  });
-  const [serviceForm, setServiceForm] = useState({
-    name: "",
-    email: "",
-    address: "",
-    phone: "",
-    serviceName: "",
-    quantity: 1,
-  });
-
-  const chatRef = useRef(null);
-  const bottomRef = useRef(null);
+  const [language, setLanguage] = useState("English");
+  const chatEndRef = useRef(null);
   const textareaRef = useRef(null);
 
-  // ========= Session Setup =========
+  const languages = [
+    "English",
+    "Hindi",
+    "Telugu",
+    "Tamil",
+    "Malayalam",
+    "Kannada",
+    "Marathi",
+    "Gujarati",
+    "Bengali",
+    "Punjabi",
+    "Odia",
+    "Urdu",
+  ];
+
+  // Session ID
   useEffect(() => {
     const id =
       localStorage.getItem("br_session_id") ||
-      (crypto.randomUUID
-        ? crypto.randomUUID()
-        : Math.random().toString(36).slice(2, 18));
+      crypto.randomUUID?.() ||
+      Math.random().toString(36).slice(2, 10);
     localStorage.setItem("br_session_id", id);
     setSessionId(id);
   }, []);
 
-  // ========= Textarea Resize =========
+  // Auto resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       const el = textareaRef.current;
@@ -140,42 +121,44 @@ export default function ChatPanel() {
     }
   }, [input]);
 
-  // ========= Auto Scroll =========
+  // Scroll to bottom
   useEffect(() => {
-    if (bottomRef.current)
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [history, typing, activeForm]);
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, typing]);
 
-  // ========= ESC to close =========
+  // ESC closes panel
   useEffect(() => {
-    const handleKey = (e) => e.key === "Escape" && setOpen(false);
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    const key = (e) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
   }, []);
 
-  // ========= SEND MESSAGE =========
-  const sendMessage = async (text) => {
-    const content = (text ?? input).trim();
-    if (!content || sending) return;
-    if (!text) setInput("");
+  // === Send message ===
+  const sendMessage = async () => {
+    const text = input.trim();
+    if (!text || sending) return;
+    setInput("");
 
-    const newHistory = [...history, { role: "user", content }];
+    const newHistory = [...history, { role: "user", content: text }];
     setHistory(newHistory);
     setSending(true);
     setTyping(true);
 
     try {
+      // Send message + language info
       const { data } = await axios.post(`${CHAT_API}/chat`, {
         conversationId: sessionId,
-        userText: content,
+        userText: `Translate and respond in ${language} language. User says: ${text}`,
         history: newHistory,
       });
-      const answer = String(data?.answer || "I received your message!");
-      setHistory((prev) => [...prev, { role: "assistant", content: answer }]);
-    } catch (err) {
-      setHistory((prev) => [
-        ...prev,
-        { role: "assistant", content: `Error: ${err.message}` },
+      setHistory((h) => [
+        ...h,
+        { role: "assistant", content: data?.answer || "..." },
+      ]);
+    } catch (e) {
+      setHistory((h) => [
+        ...h,
+        { role: "assistant", content: `⚠️ ${e.message}` },
       ]);
     } finally {
       setSending(false);
@@ -183,105 +166,11 @@ export default function ChatPanel() {
     }
   };
 
-  // ========= SUBMIT LEAD =========
-  const submitLead = async (payload) => {
-    try {
-      await axios.post(`${APP_API}/api/leads`, payload);
-      return true;
-    } catch (error) {
-      setHistory((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "Submit failed. Please try again later.",
-        },
-      ]);
-      return false;
-    }
-  };
-
-  // ========= FORM HANDLERS =========
-  const handleProductSubmit = async (e) => {
-    e.preventDefault();
-    const { name, email, address, phone, productName, quantity } = productForm;
-    if (!name || !email || !address || !phone || !productName)
-      return alert("Please fill all fields");
-    const payload = {
-      type: "product",
-      name,
-      email,
-      phone,
-      productInquiry: {
-        product: productName,
-        quantity,
-        notes: `Address: ${address}`,
-      },
-    };
-    const success = await submitLead(payload);
-    if (success) {
-      setHistory((p) => [
-        ...p,
-        {
-          role: "assistant",
-          content: "✅ Product enquiry submitted successfully.",
-        },
-      ]);
-      await sendMessage(`Product enquiry for ${productName}, qty ${quantity}.`);
-      setActiveForm(null);
-      setProductForm({
-        name: "",
-        email: "",
-        address: "",
-        phone: "",
-        productName: "",
-        quantity: 1,
-      });
-    }
-  };
-
-  const handleServiceSubmit = async (e) => {
-    e.preventDefault();
-    const { name, email, address, phone, serviceName, quantity } = serviceForm;
-    if (!name || !email || !address || !phone || !serviceName)
-      return alert("Please fill all fields");
-    const payload = {
-      type: "service",
-      name,
-      email,
-      phone,
-      serviceRequest: {
-        service: serviceName,
-        details: `Address: ${address} | Qty: ${quantity}`,
-      },
-    };
-    const success = await submitLead(payload);
-    if (success) {
-      setHistory((p) => [
-        ...p,
-        {
-          role: "assistant",
-          content: "✅ Service request submitted successfully.",
-        },
-      ]);
-      await sendMessage(`Service enquiry for ${serviceName}.`);
-      setActiveForm(null);
-      setServiceForm({
-        name: "",
-        email: "",
-        address: "",
-        phone: "",
-        serviceName: "",
-        quantity: 1,
-      });
-    }
-  };
-
   const clearChat = () => setHistory([]);
 
-  // ========= RENDER =========
   return (
     <>
-      {/* FAB */}
+      {/* Floating Button */}
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -290,9 +179,10 @@ export default function ChatPanel() {
         style={{ background: BRAND }}
       >
         <Bot className="w-6 h-6" />
-        <span className="hidden sm:block text-white">Chat</span>
+        <span className="hidden sm:block">Chat</span>
       </motion.button>
 
+      {/* Chat Modal */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -320,7 +210,7 @@ export default function ChatPanel() {
                   <div>
                     <h2 className="font-semibold text-lg">AI Assistant</h2>
                     <p className="text-sm opacity-90">
-                      How can I help you today?
+                      Responding in <strong>{language}</strong>
                     </p>
                   </div>
                 </div>
@@ -332,25 +222,33 @@ export default function ChatPanel() {
                 </button>
               </div>
 
-              {/* Messages */}
-              <div
-                ref={chatRef}
-                className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-slate-50 to-indigo-50"
-              >
-                {history.length === 0 && !activeForm && (
-                  <motion.div
-                    variants={messageVariant}
-                    initial="initial"
-                    animate="animate"
-                    className="flex items-start gap-3"
-                  >
+              {/* Language Selector */}
+              <div className="px-6 py-2 flex items-center justify-end gap-2 bg-slate-100 border-b">
+                <Globe className="w-4 h-4 text-slate-600" />
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="border border-slate-300 rounded-lg px-2 py-1 text-sm focus:ring-1 focus:ring-[#07518a] focus:border-[#07518a]"
+                >
+                  {languages.map((lang) => (
+                    <option key={lang} value={lang}>
+                      {lang}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Chat messages */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-br from-slate-50 to-indigo-50">
+                {history.length === 0 && (
+                  <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
                       <Bot className="w-5 h-5 text-white" />
                     </div>
                     <div className="bg-slate-700/60 text-slate-100 border border-slate-600/50 rounded-2xl px-4 py-3">
-                      <TypeReveal text="Hello! I'm your AI assistant. How can I assist you today?" />
+                      <TypeReveal text="Hello! Please select your preferred language and start chatting." />
                     </div>
-                  </motion.div>
+                  </div>
                 )}
 
                 {history.map((msg, i) => (
@@ -399,25 +297,19 @@ export default function ChatPanel() {
                 ))}
 
                 {typing && (
-                  <motion.div
-                    variants={messageVariant}
-                    initial="initial"
-                    animate="animate"
-                    className="flex items-start gap-3"
-                  >
+                  <div className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center">
                       <Bot className="w-5 h-5 text-white" />
                     </div>
                     <div className="bg-slate-700/60 rounded-2xl px-4 py-3 border border-slate-600/50">
                       <TypingIndicator />
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-
-                <div ref={bottomRef} />
+                <div ref={chatEndRef} />
               </div>
 
-              {/* Input Area */}
+              {/* Input */}
               <div className="border-t border-slate-200 p-4 bg-white">
                 <div className="relative mb-3">
                   <textarea
@@ -430,13 +322,13 @@ export default function ChatPanel() {
                         sendMessage();
                       }
                     }}
-                    placeholder="Type your message..."
+                    placeholder={`Type in ${language} or English...`}
                     className="w-full min-h-[44px] max-h-[120px] resize-none rounded-xl border border-slate-300 px-4 py-3 pr-14 focus:outline-none focus:border-[#07518a] focus:ring-1 focus:ring-[#07518a]"
                     style={{ color: BRAND }}
                   />
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => sendMessage()}
+                    onClick={sendMessage}
                     disabled={sending || !input.trim()}
                     className={`absolute right-2 bottom-2 w-10 h-10 rounded-lg flex items-center justify-center ${
                       sending || !input.trim() ? "bg-slate-300" : "text-white"
@@ -453,25 +345,10 @@ export default function ChatPanel() {
                   </motion.button>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={() => setActiveForm("product")}
-                    className="px-4 py-2 text-sm border rounded-lg hover:bg-slate-50"
-                    style={{ borderColor: BRAND, color: BRAND }}
-                  >
-                    Product Enquiry
-                  </button>
-                  <button
-                    onClick={() => setActiveForm("service")}
-                    className="px-4 py-2 text-sm border rounded-lg hover:bg-slate-50"
-                    style={{ borderColor: BRAND, color: BRAND }}
-                  >
-                    Service Enquiry
-                  </button>
+                <div className="flex justify-between items-center">
                   <button
                     onClick={clearChat}
-                    className="ml-auto text-xs px-3 py-1 border rounded-lg hover:bg-slate-50"
+                    className="text-xs px-3 py-1 border rounded-lg hover:bg-slate-50"
                     style={{ borderColor: BRAND, color: BRAND }}
                   >
                     Clear Chat
