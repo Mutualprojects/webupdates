@@ -73,10 +73,10 @@ const servicesLinks = [
   { text: "Software Services", to: "/services/software-services" },
   { text: "IT & Telecom Services", to: "/services/it-telecom-services" },
   { text: "Security Services", to: "/services/security-services" },
-  { text: "Sector Solutions", to: "/services/sector-solutions" },
-  { text: "Smart City Solutions", to: "/services/smart-city-solutions" },
-  { text: "Enterprise Solutions", to: "/services/enterprise-solutions" },
-  { text: "Industrial Solutions", to: "/services/industrial-solutions" },
+  // { text: "Sector Solutions", to: "/services/sector-solutions" },
+  // { text: "Smart City Solutions", to: "/services/smart-city-solutions" },
+  // { text: "Enterprise Solutions", to: "/services/enterprise-solutions" },
+  // { text: "Industrial Solutions", to: "/services/industrial-solutions" },
 ];
 
 const quickLinks = [
@@ -86,8 +86,8 @@ const quickLinks = [
   { text: "Software Services", to: "/services/software-services" },
   { text: "Contact Us", to: "/contact" },
   { text: "FAQs", to: "/faq" },
-  { text: "Support", to: "/support" },
-  { text: "Live Chat", to: "/live-chat" },
+  // { text: "Support", to: "/support" },
+  // { text: "Live Chat", to: "/live-chat" },
 ];
 
 const socialLinks = [
@@ -213,7 +213,7 @@ export default function Footer4Col() {
           </p>
           <div className="flex gap-4">
             <Link
-              to="/privacy"
+              to="/privacy-&-policy"
               className="mt-3 text-xs text-white/60 hover:text-blue-400 sm:mt-0"
             >
               Privacy Policy
@@ -225,10 +225,10 @@ export default function Footer4Col() {
               Legal Notice
             </Link>
             <Link
-              to="/security"
+              to="/Terms-and-conditions"
               className="mt-3 text-xs text-white/60 hover:text-blue-400 sm:mt-0"
             >
-              Report Security Issue
+              Terms and conditions
             </Link>
           </div>
         </div>

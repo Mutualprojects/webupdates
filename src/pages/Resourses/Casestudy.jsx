@@ -11,7 +11,6 @@ import {
   Zap,
   Shield,
   Hammer,
-  Gamepad2,
   Users,
   Briefcase,
   MapPin,
@@ -26,10 +25,7 @@ const BRAND = "#07518a";
 
 /* ===== Helpers ===== */
 function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 function escapeRegExp(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -66,16 +62,31 @@ function getSectorIcon(sectorName) {
   return sectorIcons[match || "default"];
 }
 
-/* ===== Skeleton Placeholder ===== */
-const SkeletonCard = () => (
-  <div className="animate-pulse rounded-xl bg-white/70 backdrop-blur-sm shadow-sm">
-    <div className="p-6">
-      <div className="mx-auto mb-4 h-16 w-16 rounded bg-gray-200" />
-      <div className="mx-auto mb-2 h-4 w-40 rounded bg-gray-200" />
-      <div className="mx-auto h-3 w-24 rounded bg-gray-200" />
-    </div>
-  </div>
-);
+/* =====================================================
+   IMAGE WITH TEXT FALLBACK COMPONENT
+===================================================== */
+function ImageWithFallback({ src, alt, fallbackText }) {
+  const [failed, setFailed] = useState(false);
+
+  if (!src || failed) {
+    return (
+      <div className="flex items-center justify-center h-20 w-20 bg-gray-100 text-[var(--brand)] text-[11px] text-center font-semibold px-2 leading-tight rounded">
+        {fallbackText?.length > 25
+          ? fallbackText.slice(0, 25) + "..."
+          : fallbackText}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className="h-20 w-20 object-contain"
+      onError={() => setFailed(true)}
+    />
+  );
+}
 
 /* =====================================================
    MAIN COMPONENT
@@ -102,8 +113,7 @@ export default function CaseStudiesPage() {
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
     let res = items.filter((cs) => cs.name.toLowerCase().includes(q));
-    if (sortKey === "name-asc")
-      res.sort((a, b) => a.name.localeCompare(b.name));
+    if (sortKey === "name-asc") res.sort((a, b) => a.name.localeCompare(b.name));
     if (sortKey === "name-desc")
       res.sort((a, b) => b.name.localeCompare(a.name));
     return res;
@@ -119,15 +129,17 @@ export default function CaseStudiesPage() {
   };
 
   return (
-    <main className="mx-auto max-w-7xl py-10" style={{ "--brand": BRAND }}>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Sidebar */}
-        <aside className="hidden lg:block lg:col-span-3">
+    <main className="mx-auto max-w-7xl py-8 px-4 md:px-6" style={{ "--brand": BRAND }}>
+      <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8">
+        {/* Sidebar - Responsive Scrollable Tabs on Small Screens */}
+        <aside className="lg:col-span-3">
           <div className="sticky top-6 bg-white shadow rounded-xl overflow-hidden">
             <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 font-semibold flex items-center gap-2">
               <Users className="h-5 w-5 text-blue-600" /> Industry Sectors
             </div>
-            <div className="max-h-[70vh] overflow-auto p-2">
+
+            {/* Scrollable sectors list */}
+            <div className="flex lg:block overflow-x-auto lg:overflow-visible p-2 space-x-3 lg:space-x-0">
               {sectors.map((s) => {
                 const Icon = s.icon;
                 const isActive = s.name === activeSector;
@@ -137,9 +149,10 @@ export default function CaseStudiesPage() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.2 }}
+                    className="flex-shrink-0"
                   >
                     <div
-                      className={`flex items-center justify-between p-3 mb-1 rounded-lg cursor-pointer ${
+                      className={`flex items-center justify-between p-3 mb-1 rounded-lg cursor-pointer min-w-[150px] lg:min-w-0 ${
                         isActive ? "bg-blue-50" : "bg-white hover:bg-blue-50"
                       }`}
                       onClick={() => setActiveSector(s.name)}
@@ -154,9 +167,11 @@ export default function CaseStudiesPage() {
                         >
                           <Icon className="h-4 w-4" />
                         </div>
-                        <span className="font-medium">{s.name}</span>
+                        <span className="font-medium capitalize whitespace-nowrap">
+                          {s.name}
+                        </span>
                       </div>
-                      <span className="text-xs bg-gray-100 px-2 py-1 rounded">
+                      <span className="text-xs bg-gray-100 px-2 py-1 rounded hidden lg:block">
                         {s.count}
                       </span>
                     </div>
@@ -170,7 +185,7 @@ export default function CaseStudiesPage() {
         {/* Main Content */}
         <section className="lg:col-span-9">
           <motion.div
-            className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2"
+            className="grid gap-6 sm:grid-cols-1 md:grid-cols-2"
             initial="hidden"
             animate="visible"
             variants={listVariants}
@@ -179,17 +194,16 @@ export default function CaseStudiesPage() {
               {filteredItems.map((cs) => (
                 <motion.div key={cs.id} variants={itemVariants}>
                   <Link to={`/case-studies/${slugify(cs.name)}`} state={{ cs }}>
-                    <article className="group relative overflow-hidden rounded-xl bg-[var(--brand)] text-white shadow-lg hover:-translate-y-1 transition">
-                      <div className="flex h-full">
-                        <div className="w-28 sm:w-32 bg-white border-r flex items-center justify-center p-3">
-                          {/* === Image with fallback === */}
+                    <article className="group relative overflow-hidden rounded-xl bg-[var(--brand)] text-white shadow-lg hover:-translate-y-1 transition-transform">
+                      <div className="flex flex-col sm:flex-row h-full">
+                        <div className="sm:w-32 bg-white border-b sm:border-r flex items-center justify-center p-3">
                           <ImageWithFallback
                             src={cs.avatar}
                             alt={cs.name}
                             fallbackText={cs.name}
                           />
                         </div>
-                        <div className="flex-1 p-5 pr-6">
+                        <div className="flex-1 p-5">
                           <h3
                             className="text-base font-semibold group-hover:underline underline-offset-4"
                             dangerouslySetInnerHTML={{
@@ -214,34 +228,15 @@ export default function CaseStudiesPage() {
               ))}
             </AnimatePresence>
           </motion.div>
+
+          {/* Empty State */}
+          {filteredItems.length === 0 && (
+            <div className="text-center py-10 text-gray-500 text-sm">
+              No case studies found for this sector.
+            </div>
+          )}
         </section>
       </div>
     </main>
-  );
-}
-
-/* =====================================================
-   IMAGE WITH TEXT FALLBACK COMPONENT
-===================================================== */
-function ImageWithFallback({ src, alt, fallbackText }) {
-  const [failed, setFailed] = useState(false);
-
-  if (!src || failed) {
-    return (
-      <div className="flex items-center justify-center h-20 w-20 bg-gray-100 text-[var(--brand)] text-[11px] text-center font-semibold px-2 leading-tight rounded">
-        {fallbackText?.length > 25
-          ? fallbackText.slice(0, 25) + "..."
-          : fallbackText}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className="h-20 w-20 object-contain"
-      onError={() => setFailed(true)}
-    />
   );
 }

@@ -226,7 +226,7 @@ export default function ClientsMarqueeHero({
               markBroken={markBroken}
               direction={i % 2 === 0 ? "left" : "right"}
               speedSeconds={14}
-              sizePx={80}
+              sizePx={120}
               gapPx={35}
             />
           ))}

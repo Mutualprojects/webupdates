@@ -11,6 +11,7 @@ import Ourteam from "./pages/About/Ourteam";
 import Founder from "./pages/About/Founder";
 import Who_we_are from "./pages/About/Who_we_are";
 
+import Privacy from "./pages/privacy";
 // ===== Main Feature Pages =====
 import ProductsPage from "./pages/products/Products";
 import ProductDetailPage from "./pages/products/productdetailpage";
@@ -26,7 +27,9 @@ import News from "./pages/News";
 import ServiceSectorPage from "./pages/Services/ServiceSectorPage";
 import FAQ from "./pages/faq";
 import Emer from "./pages/About/Emer";
-import Events from "./pages/Resourses/Events";
+import Events from "./pages/Resourses/Events"; 
+
+import Terms from "./components/Terms";
 
 // ===== Preloader Component =====
 import Preloader from "./components/Preloader";
@@ -52,9 +55,13 @@ const App = () => {
         { path: "faq", element: <FAQ /> },
         { path: "events", element: <Events /> },
 
+
         // ====== Main Pages ======
         { path: "contact", element: <Contact /> },
+        {path:"/privacy-&-policy",element:<Privacy/>},
 
+
+        {path:"/Terms-and-conditions",element:<Terms/>},
         // ====== Case Studies ======
         {
           path: "case-studies",
