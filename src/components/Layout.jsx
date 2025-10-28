@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
+import { motion } from "framer-motion";
 import Header from "./Header";
 import Footer4Col from "./Footer";
 import ChatPanel from "./ChatPanel";
@@ -16,22 +17,36 @@ import ScrollToTopButton from "./ScrollToTopButton";
 export default function Layout() {
   const headerRef = useRef(null);
 
-  // (Optional) keep a CSS var with header height for sticky offsets
+  // CSS variable for header height (for sticky offset)
   useEffect(() => {
     const el = headerRef.current;
     if (!el) return;
 
     const setHeaderVar = () =>
-      document.documentElement.style.setProperty(
-        "--header-h",
-        `${el.offsetHeight}px`
-      );
+      document.documentElement.style.setProperty("--header-h", `${el.offsetHeight}px`);
 
     setHeaderVar();
     const ro = new ResizeObserver(setHeaderVar);
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  // === Animation variants for ChatPanel release ===
+  const chatVariants = {
+    initial: { y: -80, opacity: 0, scale: 0.95 },
+    animate: {
+      y: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 180,
+        damping: 15,
+        delay: 0.5,
+      },
+    },
+    exit: { y: -60, opacity: 0 },
+  };
 
   return (
     <div className="min-h-dvh flex flex-col bg-white text-slate-900">
@@ -60,14 +75,19 @@ export default function Layout() {
         </div>
 
         {/* Floating Actions: Chat + Scroll */}
-        <div className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-50">
+        <motion.div
+          className="fixed bottom-6 right-6 flex flex-col items-end gap-4 z-50"
+          variants={chatVariants}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >
           <ChatPanel />
           <ScrollToTopButton />
-        </div>
+        </motion.div>
       </main>
 
       {/* Footer */}
-
       <Footer4Col />
     </div>
   );
