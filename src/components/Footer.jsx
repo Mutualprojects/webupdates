@@ -213,17 +213,17 @@ export default function Footer4Col() {
           </p>
           <div className="flex gap-4">
             <Link
-              to="/privacy-&-policy"
+              to="/privacy-policy"
               className="mt-3 text-xs text-white/60 hover:text-blue-400 sm:mt-0"
             >
               Privacy Policy
             </Link>
-            <Link
+            {/* <Link
               to="/legal"
               className="mt-3 text-xs text-white/60 hover:text-blue-400 sm:mt-0"
             >
               Legal Notice
-            </Link>
+            </Link> */}
             <Link
               to="/Terms-and-conditions"
               className="mt-3 text-xs text-white/60 hover:text-blue-400 sm:mt-0"

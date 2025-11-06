@@ -58,7 +58,7 @@ const App = () => {
 
         // ====== Main Pages ======
         { path: "contact", element: <Contact /> },
-        {path:"/privacy-&-policy",element:<Privacy/>},
+        {path:"/privacy-policy",element:<Privacy/>},
 
 
         {path:"/Terms-and-conditions",element:<Terms/>},

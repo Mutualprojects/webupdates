@@ -5,15 +5,16 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button, Form, Input, Modal, message } from "antd";
+import { Helmet } from "react-helmet-async";
 import { MENU_DATA } from "../../data/menuData";
 
 /* ============================
-   Brand
+   Brand Color
 ============================ */
 const BRAND = "#07518a";
 
 /* ============================
-   Helper
+   Helper: slugify
 ============================ */
 function slugify(s) {
   return s
@@ -26,6 +27,7 @@ export default function ProductDetailPage() {
   const { category, slug } = useParams();
   const navigate = useNavigate();
 
+  /* ===== Product Resolution ===== */
   const cat = MENU_DATA.products.find((c) => slugify(c.title) === category);
   const product = cat?.items.find((p) => slugify(p.label) === slug) || null;
   const products = cat?.items || [];
@@ -33,7 +35,7 @@ export default function ProductDetailPage() {
   const prevProduct = products[currentIndex - 1];
   const nextProduct = products[currentIndex + 1];
 
-  // Scroll Animations
+  /* ===== Scroll Animation ===== */
   const heroRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: heroRef });
   const imageY = useTransform(scrollYProgress, [0, 1], [0, 30]);
@@ -46,19 +48,41 @@ export default function ProductDetailPage() {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  /* ===== Dynamic SEO Metadata ===== */
+  const canonicalUrl =
+    product?.canonicalUrl ||
+    `https://www.brihaspathi.com/products/${slugify(cat?.title || "")}/${slug}`;
+  const pageTitle = product
+    ? `${product.label} | Brihaspathi Technologies Limited`
+    : "Brihaspathi Technologies Limited";
+  const pageDescription =
+    product?.description ||
+    "Explore cutting-edge technology solutions by Brihaspathi Technologies Limited.";
+
+  /* ===== GA Lead Event ===== */
   const handleSubmit = (values) => {
     message.success("Your enquiry has been submitted!");
     console.log("Enquiry Details:", values);
+
+    if (window.gtag && import.meta.env.VITE_GA_ID) {
+      window.gtag("event", "generate_lead", {
+        value: 1,
+        currency: "INR",
+        item_id: product.label,
+        item_category: cat?.title,
+        page_path: window.location.pathname,
+      });
+    }
+
     form.resetFields();
     setIsModalVisible(false);
   };
 
+  /* ===== 404 fallback ===== */
   if (!product) {
     return (
       <div className="py-20 text-center">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          Product not found
-        </h2>
+        <h2 className="text-2xl font-semibold text-gray-800">Product not found</h2>
         <Link
           to="/products"
           className="mt-4 inline-block text-[var(--brand)] underline"
@@ -70,11 +94,39 @@ export default function ProductDetailPage() {
     );
   }
 
+  /* ===== Main Layout ===== */
   return (
-    <div
-      className="min-h-screen bg-white text-gray-900"
-      style={{ ["--brand"]: BRAND }}
-    >
+    <div className="min-h-screen bg-white text-gray-900" style={{ ["--brand"]: BRAND }}>
+      {/* ✅ SEO */}
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
+        {/* Open Graph */}
+        <meta property="og:type" content="product" />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta
+          property="og:image"
+          content={
+            product?.image ||
+            "https://www.brihaspathi.com/highbtlogo%20white-%20tm.png"
+          }
+        />
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
+        <meta
+          name="twitter:image"
+          content={
+            product?.image ||
+            "https://www.brihaspathi.com/highbtlogo%20white-%20tm.png"
+          }
+        />
+      </Helmet>
+
       {/* ================= HERO ================= */}
       <section
         ref={heroRef}
@@ -82,11 +134,8 @@ export default function ProductDetailPage() {
         style={{ background: "linear-gradient(135deg, #064272, #07518a)" }}
       >
         <div className="relative z-10 mx-auto max-w-7xl px-6 py-20 grid md:grid-cols-2 gap-10 items-center">
-          {/* === LEFT: Image + Under-Image Prev/Next === */}
-          <motion.div
-            style={{ y: imageY }}
-            className="flex flex-col items-center"
-          >
+          {/* === LEFT IMAGE + CONTROLS === */}
+          <motion.div style={{ y: imageY }} className="flex flex-col items-center">
             <div className="bg-white rounded-2xl shadow-2xl flex items-center justify-center h-80 sm:h-96 w-full max-w-md overflow-hidden">
               <img
                 src={product.image}
@@ -95,7 +144,6 @@ export default function ProductDetailPage() {
               />
             </div>
 
-            {/* Under-image controls (centered, responsive) */}
             <div className="mt-6 w-full max-w-md px-2">
               <div className="flex items-center justify-between gap-3">
                 <Button
@@ -105,9 +153,7 @@ export default function ProductDetailPage() {
                   onClick={() =>
                     prevProduct &&
                     navigate(
-                      `/products/${slugify(cat.title)}/${slugify(
-                        prevProduct.label
-                      )}`
+                      `/products/${slugify(cat.title)}/${slugify(prevProduct.label)}`
                     )
                   }
                   className={`flex-1 font-semibold rounded-full ${
@@ -120,7 +166,6 @@ export default function ProductDetailPage() {
                   Previous
                 </Button>
 
-                {/* Position indicator (1 / N) */}
                 <div className="px-3 py-2 rounded-full bg-white/15 border border-white/25 text-white text-sm font-medium">
                   {currentIndex + 1} / {products.length}
                 </div>
@@ -133,9 +178,7 @@ export default function ProductDetailPage() {
                   onClick={() =>
                     nextProduct &&
                     navigate(
-                      `/products/${slugify(cat.title)}/${slugify(
-                        nextProduct.label
-                      )}`
+                      `/products/${slugify(cat.title)}/${slugify(nextProduct.label)}`
                     )
                   }
                   className={`flex-1 font-semibold rounded-full ${
@@ -151,7 +194,7 @@ export default function ProductDetailPage() {
             </div>
           </motion.div>
 
-          {/* === RIGHT: Text / Actions / Feature Icons === */}
+          {/* === RIGHT TEXT SECTION === */}
           <motion.div style={{ y: textY }}>
             <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight">
               {product.label}
@@ -184,7 +227,6 @@ export default function ProductDetailPage() {
               </Button>
             </div>
 
-            {/* Feature Icons Row (inside hero) */}
             {product.featureIcons?.length > 0 && (
               <div className="flex flex-wrap gap-6 mt-14">
                 {product.featureIcons.map((icon, i) => (
